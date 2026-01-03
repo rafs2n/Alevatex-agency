@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { footerContent, navigation, siteConfig } from '../data/content';
+import React, { useState } from 'react';
+import { footerContent, siteConfig } from '../data/content';
 import { Linkedin, Facebook, Instagram } from 'lucide-react';
 
 interface FooterProps {
@@ -8,11 +8,26 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ setView }) => {
+  const [clickCount, setClickCount] = useState(0);
+
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
     if (['home', 'portfolio', 'about', 'contact', 'admin', 'privacy', 'terms'].includes(href)) {
       setView(href as any);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleSecretClick = () => {
+    const nextCount = clickCount + 1;
+    if (nextCount >= 5) {
+      setView('admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setClickCount(0);
+    } else {
+      setClickCount(nextCount);
+      // Reset count after 2 seconds of inactivity
+      setTimeout(() => setClickCount(0), 2000);
     }
   };
 
@@ -35,17 +50,18 @@ const Footer: React.FC<FooterProps> = ({ setView }) => {
           <div>
             <h4 className="font-bold mb-6 text-primary uppercase tracking-widest text-sm">Navigation</h4>
             <ul className="space-y-4">
-              {navigation.map(item => (
-                <li key={item.name}>
-                  <a 
-                    href={item.href} 
-                    onClick={(e) => handleNavClick(e, item.href)}
-                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
-                  >
-                    {item.name}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <button onClick={(e) => handleNavClick(e, 'home')} className="text-slate-400 hover:text-white transition-colors">Home</button>
+              </li>
+              <li>
+                <button onClick={(e) => handleNavClick(e, 'about')} className="text-slate-400 hover:text-white transition-colors">About</button>
+              </li>
+              <li>
+                <button onClick={(e) => handleNavClick(e, 'portfolio')} className="text-slate-400 hover:text-white transition-colors">Portfolio</button>
+              </li>
+              <li>
+                <button onClick={(e) => handleNavClick(e, 'contact')} className="text-slate-400 hover:text-white transition-colors">Contact</button>
+              </li>
             </ul>
           </div>
 
@@ -73,7 +89,12 @@ const Footer: React.FC<FooterProps> = ({ setView }) => {
         </div>
 
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-500 text-sm">
-          <p>{footerContent.copyright}</p>
+          <p 
+            onClick={handleSecretClick}
+            className="cursor-default select-none active:text-white/40 transition-colors"
+          >
+            {footerContent.copyright}
+          </p>
           <div className="flex space-x-8">
             <button onClick={(e) => handleNavClick(e, 'privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
             <button onClick={(e) => handleNavClick(e, 'terms')} className="hover:text-white transition-colors">Terms of Service</button>
