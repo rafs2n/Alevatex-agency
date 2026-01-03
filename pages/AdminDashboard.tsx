@@ -4,19 +4,38 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Mail, Calendar, MessageSquare, Trash2, CheckCircle, 
   Search, Download, Filter, Eye, ChevronRight, LayoutDashboard, 
-  TrendingUp, Clock, Archive
+  TrendingUp, Clock, Archive, Lock, Key
 } from 'lucide-react';
 import { Lead } from '../data/content';
 
 const AdminDashboard: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [error, setError] = useState(false);
+  
   const [leads, setLeads] = useState<Lead[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'new' | 'contacted' | 'archived'>('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
+  const ADMIN_PASSWORD = 'alevatex@admin'; // Change this to your desired password
+
   useEffect(() => {
-    loadLeads();
-  }, []);
+    if (isAuthenticated) {
+      loadLeads();
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setError(false);
+    } else {
+      setError(true);
+      setPasswordInput('');
+    }
+  };
 
   const loadLeads = () => {
     const stored = localStorage.getItem('alevatex_leads');
@@ -80,6 +99,46 @@ const AdminDashboard: React.FC = () => {
     archived: leads.filter(l => l.status === 'archived').length,
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen pt-32 flex items-center justify-center bg-slate-50 dark:bg-dark px-6">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-white dark:bg-card p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-2xl text-center"
+        >
+          <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Lock size={32} />
+          </div>
+          <h2 className="text-3xl font-black mb-2 tracking-tight">Admin Gate</h2>
+          <p className="text-slate-500 mb-8">Enter access key to view lead dashboard.</p>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="relative">
+              <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Access Key"
+                className={`w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-dark border rounded-2xl focus:outline-none transition-all ${
+                  error ? 'border-red-500 bg-red-50/10' : 'border-slate-200 dark:border-slate-800 focus:border-primary'
+                }`}
+              />
+            </div>
+            {error && <p className="text-red-500 text-xs font-bold uppercase tracking-widest">Access Denied. Try Again.</p>}
+            <button 
+              type="submit"
+              className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20"
+            >
+              Unlock Dashboard
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-32 pb-20 min-h-screen bg-slate-50 dark:bg-dark">
       <div className="max-w-7xl mx-auto px-6">
@@ -95,13 +154,21 @@ const AdminDashboard: React.FC = () => {
             <p className="text-slate-500">Manage incoming inquiries and client relationships.</p>
           </div>
           
-          <button 
-            onClick={exportLeads}
-            className="flex items-center space-x-2 bg-white dark:bg-card border border-slate-200 dark:border-slate-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
-          >
-            <Download size={18} />
-            <span>Export CSV</span>
-          </button>
+          <div className="flex space-x-4">
+            <button 
+                onClick={() => setIsAuthenticated(false)}
+                className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-6 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+            >
+                Logout
+            </button>
+            <button 
+                onClick={exportLeads}
+                className="flex items-center space-x-2 bg-white dark:bg-card border border-slate-200 dark:border-slate-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+            >
+                <Download size={18} />
+                <span>Export CSV</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Grid */}
