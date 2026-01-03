@@ -23,7 +23,6 @@ export const navigation = [
   { name: "About", href: "about" },
   { name: "Portfolio", href: "portfolio" },
   { name: "Contact", href: "contact" },
-  { name: "Admin", href: "admin" }, // Added for internal lead management
 ];
 
 export const clientLogos = [
