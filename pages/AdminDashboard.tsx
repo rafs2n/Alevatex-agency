@@ -18,7 +18,7 @@ const AdminDashboard: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'new' | 'contacted' | 'archived'>('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
-  const ADMIN_PASSWORD = 'alevatex@admin'; // Change this to your desired password
+  const ADMIN_PASSWORD = 'admin'; // Change this to your desired password
 
   useEffect(() => {
     if (isAuthenticated) {
